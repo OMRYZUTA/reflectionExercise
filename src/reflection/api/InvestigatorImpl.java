@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class InvestigatorImpl implements Investigator {
-    private Class m_ClassOfInstance;
+    private Class<?> m_ClassOfInstance;
     private Object m_Instance;
 
     public boolean isLoaded(){
@@ -23,21 +23,19 @@ public class InvestigatorImpl implements Investigator {
 
     @Override
     public int getTotalNumberOfConstructors() {
-        int length = m_ClassOfInstance.getDeclaredConstructors().length;
-        return length;
+        return m_ClassOfInstance.getDeclaredConstructors().length;
     }
 
     @Override
     public int getTotalNumberOfFields() {
-        int length = m_ClassOfInstance.getDeclaredFields().length;
-        return length;
+        return m_ClassOfInstance.getDeclaredFields().length;
     }
 
     @Override
     public Set<String> getAllImplementedInterfaces() {
-        Class[] interfaces = m_ClassOfInstance.getInterfaces();
-        Set<String> names = new HashSet<String>();
-        for(Class classInfo : interfaces){
+        Class<?>[] interfaces = m_ClassOfInstance.getInterfaces();
+        Set<String> names = new HashSet<>();
+        for(Class<?> classInfo : interfaces){
             names.add((classInfo.getSimpleName()));
         }
 
@@ -73,7 +71,7 @@ public class InvestigatorImpl implements Investigator {
     public boolean isExtending() {
         boolean answer = false;
         Class<?> classOfSuper = m_ClassOfInstance.getSuperclass();
-        if(classOfSuper != null && classOfSuper != new Object().getClass()){
+        if(classOfSuper != null && Object.class != classOfSuper){
             answer = true;
         }
         return answer;
@@ -81,8 +79,7 @@ public class InvestigatorImpl implements Investigator {
 
     @Override
     public String getParentClassSimpleName() {
-        String name = m_ClassOfInstance.getSuperclass().getSimpleName();
-        return name;
+        return  m_ClassOfInstance.getSuperclass().getSimpleName();
     }
 
     @Override
@@ -98,7 +95,7 @@ public class InvestigatorImpl implements Investigator {
     @Override
     public Set<String> getNamesOfAllFieldsIncludingInheritanceChain() {
         Class<?> currentClass = m_ClassOfInstance;
-        Set<String> AllFields = new HashSet<String>();
+        Set<String> AllFields = new HashSet<>();
         while(currentClass != null){
             Field[] fields = currentClass.getDeclaredFields();
             for(Field field : fields){
@@ -116,56 +113,62 @@ public class InvestigatorImpl implements Investigator {
         try {
             Method method = m_ClassOfInstance.getMethod(methodName);
             result = (int) method.invoke(m_Instance, args);
-        }
-        catch(NoSuchMethodException e){
-
-        }
-        finally {
             return  result;
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            return result;
         }
     }
 
     @Override
-    public Object createInstance(int numberOfArgs, Object... args) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    public Object createInstance(int numberOfArgs, Object... args) {
         Object instance = null;
         Constructor<?>[] constructors = m_ClassOfInstance.getConstructors();
-        Constructor chosenConstructor = null;
-        for(Constructor constructor : constructors){
+        Constructor<?> chosenConstructor = null;
+        for(Constructor<?> constructor : constructors){
             if(constructor.getParameterCount()==numberOfArgs){
                 chosenConstructor =constructor;
                 break;
             }
         }
         if (chosenConstructor != null){
-            instance = chosenConstructor.newInstance(args);
+            try {
+                instance = chosenConstructor.newInstance(args);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return instance;
     }
 
     @Override
-    public Object elevateMethodAndInvoke(String name, Class<?>[] parametersTypes, Object... args) throws InvocationTargetException, IllegalAccessException {
+    public Object elevateMethodAndInvoke(String name, Class<?>[] parametersTypes, Object... args) {
         Method method = null;
         try {
             method = m_ClassOfInstance.getDeclaredMethod(name,parametersTypes);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            assert method != null;
+            method.setAccessible(true);
+            return method.invoke(m_Instance ,args);
         }
-        method.setAccessible(true);
-        return method.invoke(m_Instance ,args);
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
     public String getInheritanceChain(String delimiter) {
-        Class currentClass = m_ClassOfInstance;
-        String chain = "";
+        Class<?> currentClass = m_ClassOfInstance;
+        StringBuilder chain = new StringBuilder();
         while(currentClass !=null){
-            chain = currentClass.getSimpleName() + chain;
+            chain.insert(0, currentClass.getSimpleName());
             currentClass= currentClass.getSuperclass();
             if(currentClass != null)
             {
-                chain = delimiter + chain;
+                chain.insert(0, delimiter);
             }
         }
-        return chain;
+        return chain.toString();
     }
 }

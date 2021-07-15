@@ -2,8 +2,6 @@ package reflection.api;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,7 +16,7 @@ class InvestigatorImplTest  {
     @BeforeEach
     void setUp() {
         ObjectInvestigator.load(new Object());
-        StringInvestigator.load(new String());
+        StringInvestigator.load("");
         HashSetInvestigator.load(new HashSet<String>());
         ArrayListInvestigator.load(new ArrayList<String>());
     }
@@ -26,7 +24,6 @@ class InvestigatorImplTest  {
     @org.junit.jupiter.api.Test
     void load() {
         String name = "hi there";
-        Class stringClass = name.getClass();
         InvestigatorImpl investigator = new InvestigatorImpl();
         investigator.load(name);
         assertTrue(investigator.isLoaded());
@@ -115,19 +112,19 @@ class InvestigatorImplTest  {
     @Test
     void invokeMethodThatReturnsInt() {
         int returnedInt = StringInvestigator.invokeMethodThatReturnsInt("hashCode");
-        int trial = new String().hashCode();
-        assertEquals(new String().hashCode(),returnedInt);
+        assertEquals("".hashCode(),
+                returnedInt);
     }
 
     @Test
-    void createInstance() throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    void createInstance()  {
         Object expectedInstance = new HashSet<String>();
         Object actualInstance = HashSetInvestigator.createInstance(0);
         assertEquals(expectedInstance,actualInstance);
     }
 
     @Test
-    void elevateMethodAndInvoke() throws InvocationTargetException, IllegalAccessException {
+    void elevateMethodAndInvoke()  {
         Class<?>[] parametersTypes = {Integer.TYPE};
         int result = ( int) ArrayListInvestigator.elevateMethodAndInvoke("hugeCapacity",parametersTypes, Integer.MAX_VALUE-7 );
         assertEquals(Integer.MAX_VALUE,result);
