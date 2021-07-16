@@ -1,5 +1,4 @@
 package reflection.api;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
@@ -21,7 +20,7 @@ class InvestigatorImplTest  {
         ArrayListInvestigator.load(new ArrayList<String>());
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void load() {
         String name = "hi there";
         InvestigatorImpl investigator = new InvestigatorImpl();

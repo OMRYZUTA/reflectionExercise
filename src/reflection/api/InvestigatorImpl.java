@@ -116,7 +116,6 @@ public class InvestigatorImpl implements Investigator {
             return  result;
         }
         catch(Exception e) {
-            e.printStackTrace();
             return result;
         }
     }
@@ -136,7 +135,7 @@ public class InvestigatorImpl implements Investigator {
             try {
                 instance = chosenConstructor.newInstance(args);
             } catch (Exception e) {
-                e.printStackTrace();
+
             }
         }
         return instance;
@@ -152,7 +151,6 @@ public class InvestigatorImpl implements Investigator {
             return method.invoke(m_Instance ,args);
         }
         catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
     }
