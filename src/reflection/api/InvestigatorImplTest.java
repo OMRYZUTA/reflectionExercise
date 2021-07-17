@@ -12,6 +12,7 @@ class InvestigatorImplTest  {
     InvestigatorImpl StringInvestigator =new InvestigatorImpl();
     InvestigatorImpl HashSetInvestigator =new InvestigatorImpl();
     InvestigatorImpl ArrayListInvestigator =new InvestigatorImpl();
+
     @BeforeEach
     void setUp() {
         ObjectInvestigator.load(new Object());
